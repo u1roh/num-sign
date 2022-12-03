@@ -22,11 +22,14 @@
 //! assert_eq!(std::f64::NEG_INFINITY.sign(), Some(Negative));
 //! assert_eq!("+1".parse::<Sign>().unwrap(), Positive);
 //! assert_eq!("-1".parse::<Sign>().unwrap(), Negative);
+//! assert_eq!("Positive".parse::<Sign>().unwrap(), Positive);
+//! assert_eq!("Negative".parse::<Sign>().unwrap(), Negative);
 //! assert_eq!(Positive.to_string(), "+1");
 //! assert_eq!(Negative.to_string(), "-1");
 //! ```
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Sign {
     Positive,
     Negative,
@@ -78,6 +81,8 @@ impl std::str::FromStr for Sign {
         match s {
             "+1" => Ok(Positive),
             "-1" => Ok(Negative),
+            "Positive" => Ok(Positive),
+            "Negative" => Ok(Negative),
             _ => Err(()),
         }
     }
@@ -156,4 +161,11 @@ impl Signed for f32 {
             _ => None,
         }
     }
+}
+
+#[cfg(feature = "serde")]
+#[test]
+fn test_serde() {
+    assert_eq!(serde_json::to_string(&Positive).unwrap(), "\"Positive\"");
+    assert_eq!(serde_json::to_string(&Negative).unwrap(), "\"Negative\"");
 }
