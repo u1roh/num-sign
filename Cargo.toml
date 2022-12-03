@@ -7,7 +7,7 @@ repository = "https://github.com/u1roh/num-sign"
 documentation = "https://docs.rs/num-sign"
 keywords = ["sign", "positive", "negative"]
 readme = "README.md"
-description = "enum Sign { Positive, Negative }"
+description = "enum Sign { Positive = 1, Negative = -1 }"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
