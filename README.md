@@ -3,7 +3,6 @@
 ## `Sign` enum
 ```rust
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Sign {
     Positive = 1,
     Negative = -1,
@@ -54,4 +53,19 @@ assert_eq!("+".parse::<Sign>().unwrap(), Positive);
 assert_eq!("-".parse::<Sign>().unwrap(), Negative);
 assert_eq!(Positive.to_string(), "+");
 assert_eq!(Negative.to_string(), "-");
+```
+
+## `serde` feature
+Cargo.toml:
+```toml
+[dependencies]
+num-sign = { version = "...", features = ["serde"] }
+```
+
+Test:
+```rust
+assert_eq!(serde_json::to_string(&Positive).unwrap(), "\"+\"");
+assert_eq!(serde_json::to_string(&Negative).unwrap(), "\"-\"");
+assert_eq!(Positive, serde_json::from_str("\"+\"").unwrap());
+assert_eq!(Negative, serde_json::from_str("\"-\"").unwrap());
 ```
