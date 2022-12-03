@@ -50,10 +50,8 @@ assert_eq!((-0.0).sign(), Some(Negative));
 assert_eq!(std::f64::NAN.sign(), None);
 assert_eq!(std::f64::INFINITY.sign(), Some(Positive));
 assert_eq!(std::f64::NEG_INFINITY.sign(), Some(Negative));
-assert_eq!("+1".parse::<Sign>().unwrap(), Positive);
-assert_eq!("-1".parse::<Sign>().unwrap(), Negative);
-assert_eq!("Positive".parse::<Sign>().unwrap(), Positive);
-assert_eq!("Negative".parse::<Sign>().unwrap(), Negative);
-assert_eq!(Positive.to_string(), "+1");
-assert_eq!(Negative.to_string(), "-1");
+assert_eq!("+".parse::<Sign>().unwrap(), Positive);
+assert_eq!("-".parse::<Sign>().unwrap(), Negative);
+assert_eq!(Positive.to_string(), "+");
+assert_eq!(Negative.to_string(), "-");
 ```

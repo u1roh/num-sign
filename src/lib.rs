@@ -28,16 +28,13 @@
 //! assert_eq!(std::f64::NAN.sign(), None);
 //! assert_eq!(std::f64::INFINITY.sign(), Some(Positive));
 //! assert_eq!(std::f64::NEG_INFINITY.sign(), Some(Negative));
-//! assert_eq!("+1".parse::<Sign>().unwrap(), Positive);
-//! assert_eq!("-1".parse::<Sign>().unwrap(), Negative);
-//! assert_eq!("Positive".parse::<Sign>().unwrap(), Positive);
-//! assert_eq!("Negative".parse::<Sign>().unwrap(), Negative);
-//! assert_eq!(Positive.to_string(), "+1");
-//! assert_eq!(Negative.to_string(), "-1");
+//! assert_eq!("+".parse::<Sign>().unwrap(), Positive);
+//! assert_eq!("-".parse::<Sign>().unwrap(), Negative);
+//! assert_eq!(Positive.to_string(), "+");
+//! assert_eq!(Negative.to_string(), "-");
 //! ```
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Sign {
     Positive = 1,
     Negative = -1,
@@ -87,10 +84,8 @@ impl std::str::FromStr for Sign {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "+1" => Ok(Positive),
-            "-1" => Ok(Negative),
-            "Positive" => Ok(Positive),
-            "Negative" => Ok(Negative),
+            "+" => Ok(Positive),
+            "-" => Ok(Negative),
             _ => Err(()),
         }
     }
@@ -99,8 +94,8 @@ impl std::str::FromStr for Sign {
 impl std::fmt::Display for Sign {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
-            Positive => "+1",
-            Negative => "-1",
+            Positive => "+",
+            Negative => "-",
         })
     }
 }
@@ -172,8 +167,40 @@ impl Signed for f32 {
 }
 
 #[cfg(feature = "serde")]
-#[test]
-fn test_serde() {
-    assert_eq!(serde_json::to_string(&Positive).unwrap(), "\"Positive\"");
-    assert_eq!(serde_json::to_string(&Negative).unwrap(), "\"Negative\"");
+mod impl_serde {
+    use super::*;
+    impl serde::Serialize for Sign {
+        fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+            serializer.serialize_str(match self {
+                Positive => "+",
+                Negative => "-",
+            })
+        }
+    }
+    struct SignVisitor;
+    impl<'de> serde::de::Visitor<'de> for SignVisitor {
+        type Value = Sign;
+        fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            f.write_str("\"+\" or \"-\"")
+        }
+        fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<Self::Value, E> {
+            match value {
+                "+" => Ok(Positive),
+                "-" => Ok(Negative),
+                _ => Err(E::custom("Sign must be + or -")),
+            }
+        }
+    }
+    impl<'de> serde::Deserialize<'de> for Sign {
+        fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+            deserializer.deserialize_str(SignVisitor)
+        }
+    }
+    #[test]
+    fn test_serde() {
+        assert_eq!(serde_json::to_string(&Positive).unwrap(), "\"+\"");
+        assert_eq!(serde_json::to_string(&Negative).unwrap(), "\"-\"");
+        assert_eq!(Positive, serde_json::from_str("\"+\"").unwrap());
+        assert_eq!(Negative, serde_json::from_str("\"-\"").unwrap());
+    }
 }
