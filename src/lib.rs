@@ -1,5 +1,13 @@
 //! ```
 //! use num_sign::*;
+//! assert_eq!(Positive as i32, 1);
+//! assert_eq!(Negative as i32, -1);
+//! assert!(Negative < Positive);
+//! assert_eq!(Positive.cmp(&Negative), std::cmp::Ordering::Greater);
+//! assert_eq!(1_i32, Positive.into());
+//! assert_eq!(-1_i32, Negative.into());
+//! assert_eq!(1.0, Positive.into());
+//! assert_eq!(-1.0, Negative.into());
 //! assert_eq!(-Positive, Negative);
 //! assert_eq!(Positive, -Negative);
 //! assert_eq!(Positive * Positive, Positive);
@@ -28,11 +36,11 @@
 //! assert_eq!(Negative.to_string(), "-1");
 //! ```
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Sign {
-    Positive,
-    Negative,
+    Positive = 1,
+    Negative = -1,
 }
 
 pub use Sign::*;
@@ -101,7 +109,7 @@ pub trait Signed {
     fn sign(&self) -> Option<Sign>;
 }
 
-macro_rules! impl_from_sign_to_int {
+macro_rules! impl_traits_for_int {
     ($($int_type: ty),*) => {
         $(
             impl From<Sign> for $int_type {
@@ -125,7 +133,7 @@ macro_rules! impl_from_sign_to_int {
     };
 }
 
-impl_from_sign_to_int!(isize, i64, i32, i16, i8);
+impl_traits_for_int!(isize, i64, i32, i16, i8);
 
 impl From<Sign> for f64 {
     fn from(sign: Sign) -> f64 {
