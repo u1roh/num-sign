@@ -58,6 +58,23 @@ impl Sign {
     pub fn to_i8(self) -> i16 {
         self.into()
     }
+
+    /// (-1)^n (i.e. `if n % 2 == 0 { Positive } else { Negative }`)
+    /// ```
+    /// use num_sign::*;
+    /// assert_eq!(Sign::parity(0), Positive);
+    /// assert_eq!(Sign::parity(7), Negative);
+    /// assert_eq!(Sign::parity(-2), Positive);
+    /// assert_eq!(Sign::parity(false), Positive);
+    /// assert_eq!(Sign::parity(true), Negative);
+    /// ```
+    pub fn parity(n: impl Into<i32>) -> Self {
+        if n.into() % 2 == 0 {
+            Positive
+        } else {
+            Negative
+        }
+    }
 }
 
 impl std::ops::Neg for Sign {
